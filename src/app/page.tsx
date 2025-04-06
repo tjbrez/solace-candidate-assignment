@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Advocate } from "@/db/schema";
 
 export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [advocates, setAdvocates] = useState<Advocate[]>([]);
+  const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -17,7 +18,7 @@ export default function Home() {
     });
   }, []);
 
-  const onChange = (e) => {
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
     setSearchTerm(newSearchTerm);
 
@@ -29,7 +30,7 @@ export default function Home() {
         advocate.lastName.toLowerCase().includes(searchTermLower) ||
         advocate.city.toLowerCase().includes(searchTermLower) ||
         advocate.degree.toLowerCase().includes(searchTermLower) ||
-        advocate.specialties.some(specialty => 
+        (advocate.specialties as string[]).some((specialty) =>
           specialty.toLowerCase().includes(searchTermLower)
         ) ||
         advocate.yearsOfExperience.toString().includes(newSearchTerm)
@@ -80,7 +81,7 @@ export default function Home() {
                 <td>{advocate.city}</td>
                 <td>{advocate.degree}</td>
                 <td>
-                  {advocate.specialties.map((specialty, index) => (
+                  {(advocate.specialties as string[]).map((specialty, index) => (
                     <div key={`${specialty}-${index}`}>{specialty}</div>
                   ))}
                 </td>

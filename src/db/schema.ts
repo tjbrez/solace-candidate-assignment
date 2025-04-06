@@ -8,6 +8,7 @@ import {
   timestamp,
   bigint,
 } from "drizzle-orm/pg-core";
+import type { InferSelectModel } from "drizzle-orm";
 
 const advocates = pgTable("advocates", {
   id: serial("id").primaryKey(),
@@ -21,4 +22,5 @@ const advocates = pgTable("advocates", {
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export type Advocate = InferSelectModel<typeof advocates>;
 export { advocates };
