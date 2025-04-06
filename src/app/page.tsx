@@ -7,15 +7,17 @@ export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
+    setIsLoading(true);
+    fetch("/api/advocates")
+      .then((response) => response.json())
+      .then((jsonResponse) => {
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
-      });
-    });
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,57 +43,80 @@ export default function Home() {
   };
 
   const onClick = () => {
-    console.log(advocates);
+    setSearchTerm("");
     setFilteredAdvocates(advocates);
   };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: {searchTerm}
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
+    <main className="container mx-auto px-6 py-8">
+      <h1 className="page-title">Solace Advocates</h1>
+      
+      <div className="search-card">
+        <div className="space-y-4">
+          <label htmlFor="search" className="block text-sm font-medium text-gray-600">
+            Search Advocates
+          </label>
+          <div className="flex gap-4">
+            <input
+              id="search"
+              type="text"
+              placeholder="Search by name, city, degree, or specialties..."
+              className="search-input"
+              onChange={onChange}
+              value={searchTerm}
+            />
+            <button 
+              onClick={onClick}
+              className="primary-button"
+            >
+              Reset
+            </button>
+          </div>
+          {searchTerm && (
+            <p className="text-sm text-gray-600">
+              Showing results for: <span className="font-medium">{searchTerm}</span>
+            </p>
+          )}
+        </div>
       </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>City</th>
-            <th>Degree</th>
-            <th>Specialties</th>
-            <th>Years of Experience</th>
-            <th>Phone Number</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr key={`${advocate.id}`}>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {(advocate.specialties as string[]).map((specialty, index) => (
-                    <div key={`${specialty}-${index}`}>{specialty}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
+      <div className="overflow-x-auto rounded-lg shadow">
+      {isLoading ? (
+          <div className="loading-overlay">
+            <div className="spinner" />
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 bg-white">
+            <thead className="bg-[#F8FAFC]">
+              <tr>
+                <th className="table-header">First Name</th>
+                <th className="table-header">Last Name</th>
+                <th className="table-header">City</th>
+                <th className="table-header">Degree</th>
+                <th className="table-header">Specialties</th>
+                <th className="table-header">Years of Experience</th>
+                <th className="table-header">Phone Number</th>
               </tr>
-            );
-          })}
-        </tbody>
-      </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredAdvocates.map((advocate) => (
+                <tr key={`${advocate.id}`} className="hover:bg-[#F1F5F9]">
+                  <td className="table-cell">{advocate.firstName}</td>
+                  <td className="table-cell">{advocate.lastName}</td>
+                  <td className="table-cell">{advocate.city}</td>
+                  <td className="table-cell">{advocate.degree}</td>
+                  <td className="table-cell">
+                    {(advocate.specialties as string[]).map((specialty, index) => (
+                      <div key={`${specialty}-${index}`} className="mb-1 last:mb-0">{specialty}</div>
+                    ))}
+                  </td>
+                  <td className="table-cell">{advocate.yearsOfExperience}</td>
+                  <td className="table-cell">{advocate.phoneNumber}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </main>
   );
 }
