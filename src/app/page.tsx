@@ -7,15 +7,17 @@ export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
+    setIsLoading(true);
+    fetch("/api/advocates")
+      .then((response) => response.json())
+      .then((jsonResponse) => {
         setAdvocates(jsonResponse.data);
         setFilteredAdvocates(jsonResponse.data);
-      });
-    });
+      })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,36 +80,42 @@ export default function Home() {
         </div>
       </div>
       <div className="overflow-x-auto rounded-lg shadow">
-        <table className="min-w-full divide-y divide-gray-200 bg-white">
-          <thead className="bg-[#F8FAFC]">
-            <tr>
-              <th className="table-header">First Name</th>
-              <th className="table-header">Last Name</th>
-              <th className="table-header">City</th>
-              <th className="table-header">Degree</th>
-              <th className="table-header">Specialties</th>
-              <th className="table-header">Years of Experience</th>
-              <th className="table-header">Phone Number</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {filteredAdvocates.map((advocate) => (
-              <tr key={`${advocate.id}`} className="hover:bg-[#F1F5F9]">
-                <td className="table-cell">{advocate.firstName}</td>
-                <td className="table-cell">{advocate.lastName}</td>
-                <td className="table-cell">{advocate.city}</td>
-                <td className="table-cell">{advocate.degree}</td>
-                <td className="table-cell">
-                  {(advocate.specialties as string[]).map((specialty, index) => (
-                    <div key={`${specialty}-${index}`} className="mb-1 last:mb-0">{specialty}</div>
-                  ))}
-                </td>
-                <td className="table-cell">{advocate.yearsOfExperience}</td>
-                <td className="table-cell">{advocate.phoneNumber}</td>
+      {isLoading ? (
+          <div className="loading-overlay">
+            <div className="spinner" />
+          </div>
+        ) : (
+          <table className="min-w-full divide-y divide-gray-200 bg-white">
+            <thead className="bg-[#F8FAFC]">
+              <tr>
+                <th className="table-header">First Name</th>
+                <th className="table-header">Last Name</th>
+                <th className="table-header">City</th>
+                <th className="table-header">Degree</th>
+                <th className="table-header">Specialties</th>
+                <th className="table-header">Years of Experience</th>
+                <th className="table-header">Phone Number</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {filteredAdvocates.map((advocate) => (
+                <tr key={`${advocate.id}`} className="hover:bg-[#F1F5F9]">
+                  <td className="table-cell">{advocate.firstName}</td>
+                  <td className="table-cell">{advocate.lastName}</td>
+                  <td className="table-cell">{advocate.city}</td>
+                  <td className="table-cell">{advocate.degree}</td>
+                  <td className="table-cell">
+                    {(advocate.specialties as string[]).map((specialty, index) => (
+                      <div key={`${specialty}-${index}`} className="mb-1 last:mb-0">{specialty}</div>
+                    ))}
+                  </td>
+                  <td className="table-cell">{advocate.yearsOfExperience}</td>
+                  <td className="table-cell">{advocate.phoneNumber}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </main>
   );
