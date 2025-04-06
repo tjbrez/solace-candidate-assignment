@@ -41,25 +41,42 @@ export default function Home() {
   };
 
   const onClick = () => {
-    console.log(advocates);
+    setSearchTerm("");
     setFilteredAdvocates(advocates);
   };
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: {searchTerm}
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
+    <main className="container mx-auto px-6 py-8">
+      <h1 className="page-title">Solace Advocates</h1>
+      
+      <div className="search-card">
+        <div className="space-y-4">
+          <label htmlFor="search" className="block text-sm font-medium text-gray-600">
+            Search Advocates
+          </label>
+          <div className="flex gap-4">
+            <input
+              id="search"
+              type="text"
+              placeholder="Search by name, city, degree, or specialties..."
+              className="search-input"
+              onChange={onChange}
+              value={searchTerm}
+            />
+            <button 
+              onClick={onClick}
+              className="primary-button"
+            >
+              Reset
+            </button>
+          </div>
+          {searchTerm && (
+            <p className="text-sm text-gray-600">
+              Showing results for: <span className="font-medium">{searchTerm}</span>
+            </p>
+          )}
+        </div>
       </div>
-      <br />
-      <br />
       <div className="overflow-x-auto rounded-lg shadow">
         <table className="min-w-full divide-y divide-gray-200 bg-white">
           <thead className="bg-[#F8FAFC]">
