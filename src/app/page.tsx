@@ -23,12 +23,15 @@ export default function Home() {
 
     console.log("filtering advocates...");
     const filteredAdvocates = advocates.filter((advocate) => {
+      const searchTermLower = searchTerm.toLowerCase();
       return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
+        advocate.firstName.toLowerCase().includes(searchTermLower) ||
+        advocate.lastName.toLowerCase().includes(searchTermLower) ||
+        advocate.city.toLowerCase().includes(searchTermLower) ||
+        advocate.degree.toLowerCase().includes(searchTermLower) ||
+        advocate.specialties.some(specialty => 
+          specialty.toLowerCase().includes(searchTermLower)
+        ) ||
         advocate.yearsOfExperience.toString().includes(searchTerm)
       );
     });
