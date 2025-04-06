@@ -20,26 +20,20 @@ export default function Home() {
       .finally(() => setIsLoading(false));
   }, []);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
     setSearchTerm(newSearchTerm);
+    setIsLoading(true);
 
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      const searchTermLower = newSearchTerm.toLowerCase();
-      return (
-        advocate.firstName.toLowerCase().includes(searchTermLower) ||
-        advocate.lastName.toLowerCase().includes(searchTermLower) ||
-        advocate.city.toLowerCase().includes(searchTermLower) ||
-        advocate.degree.toLowerCase().includes(searchTermLower) ||
-        (advocate.specialties as string[]).some((specialty) =>
-          specialty.toLowerCase().includes(searchTermLower)
-        ) ||
-        advocate.yearsOfExperience.toString().includes(newSearchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
+    try {
+      const response = await fetch(`/api/advocates?search=${encodeURIComponent(newSearchTerm)}`);
+      const data = await response.json();
+      setFilteredAdvocates(data.data);
+    } catch (error) {
+      console.error('Error fetching filtered results:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const onClick = () => {
