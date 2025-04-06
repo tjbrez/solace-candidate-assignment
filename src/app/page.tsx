@@ -2,38 +2,43 @@
 
 import { useEffect, useState } from "react";
 import { Advocate } from "@/db/schema";
+import { useDebounce } from '@/hooks/useDebounce';
+
 
 export default function Home() {
   const [advocates, setAdvocates] = useState<Advocate[]>([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState<Advocate[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch("/api/advocates")
-      .then((response) => response.json())
-      .then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
+    const fetchAdvocates = async () => {
+      setIsLoading(true);
+      try {
+        const url = debouncedSearchTerm 
+          ? `/api/advocates?search=${encodeURIComponent(debouncedSearchTerm)}`
+          : '/api/advocates';
+        
+        const response = await fetch(url);
+        const { data } = await response.json();
+        
+        if (!debouncedSearchTerm) {
+          setAdvocates(data);
+        }
+        setFilteredAdvocates(data);
+      } catch (error) {
+        console.error('Error fetching advocates:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const onChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newSearchTerm = e.target.value;
-    setSearchTerm(newSearchTerm);
-    setIsLoading(true);
+    fetchAdvocates();
+  }, [debouncedSearchTerm]);
 
-    try {
-      const response = await fetch(`/api/advocates?search=${encodeURIComponent(newSearchTerm)}`);
-      const data = await response.json();
-      setFilteredAdvocates(data.data);
-    } catch (error) {
-      console.error('Error fetching filtered results:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
 
   const onClick = () => {
