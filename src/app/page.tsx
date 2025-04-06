@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [advocates, setAdvocates] = useState([]);
   const [filteredAdvocates, setFilteredAdvocates] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     console.log("fetching advocates...");
@@ -17,13 +18,12 @@ export default function Home() {
   }, []);
 
   const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
 
     console.log("filtering advocates...");
     const filteredAdvocates = advocates.filter((advocate) => {
-      const searchTermLower = searchTerm.toLowerCase();
+      const searchTermLower = newSearchTerm.toLowerCase();
       return (
         advocate.firstName.toLowerCase().includes(searchTermLower) ||
         advocate.lastName.toLowerCase().includes(searchTermLower) ||
@@ -32,7 +32,7 @@ export default function Home() {
         advocate.specialties.some(specialty => 
           specialty.toLowerCase().includes(searchTermLower)
         ) ||
-        advocate.yearsOfExperience.toString().includes(searchTerm)
+        advocate.yearsOfExperience.toString().includes(newSearchTerm)
       );
     });
 
@@ -52,7 +52,7 @@ export default function Home() {
       <div>
         <p>Search</p>
         <p>
-          Searching for: <span id="search-term"></span>
+          Searching for: {searchTerm}
         </p>
         <input style={{ border: "1px solid black" }} onChange={onChange} />
         <button onClick={onClick}>Reset Search</button>
